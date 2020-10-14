@@ -1,4 +1,9 @@
 const puppeteer = require('puppeteer');
+const moment = require('moment')
+
+const dayAgo = 24 * 60 * 60 * 1000
+const hourAgo = 60 * 60 * 1000
+const minuteAgo = 60 * 1000
 
 const crawler = async () => {
     require('dotenv').config()
@@ -25,9 +30,9 @@ const crawler = async () => {
             nameEl.forEach(async (nEl, i) => {
                 status.push({
                     id: Math.random().toString(36).substr(2, 9),
-                    name: nEl.innerText,
+                    name: nEl.innerHTML,
                     status: titleEl1.length !== 0 ? titleEl1[i].innerText : titleEl2[i].innerText,
-                    date: dateEl[i].innerText,
+                    date: formatTime(dateEl[i].innerText),
                 })
             })
         })
@@ -37,5 +42,13 @@ const crawler = async () => {
     await browser.close()
     return status
 }
+
+function formatTime(timeString) {
+    const time = timeString.split(' ', 2)
+    const timeUnit = time[1]
+    const timeNumber = time[0]
+    return moment(new Date(Date.now() - timeNumber * (timeUnit === 'giờ' ? hourAgo : minuteAgo))).format()
+}
+
 
 module.exports = { crawler }
